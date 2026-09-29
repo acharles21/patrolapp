@@ -74,7 +74,41 @@ function Login() {
     setConfirmPassword('')
   }
 
-  return <main className="login-shell"><section className="login-card"><Brand/><div className="login-copy"><p className="eyebrow">SECURE FIELD ACCESS</p><h1>{mode==='signup'?'Create account':'Patrol Command'}</h1><p className="muted">{mode==='signup'?'Create your Patrol Command login. New accounts start with standard officer access.':'Operations, training, account information and technical support in one place.'}</p></div><form onSubmit={submit}>{mode==='signup'&&<label>Full name<input type="text" value={fullName} onChange={e=>setFullName(e.target.value)} required autoComplete="name"/></label>}<label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email"/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete={mode==='signup'?'new-password':'current-password'}/></label>{mode==='signup'&&<label>Confirm password<input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required autoComplete="new-password"/></label>}<button className="primary" disabled={busy}>{busy?(mode==='signup'?'Creating account…':'Signing in…'):(mode==='signup'?'Create account':'Sign in')}</button>{mode==='login'&&<button className="ghost" type="button" onClick={resetPassword} disabled={busy}>Forgot password</button>}<div className="auth-divider"><span>{mode==='signup'?'Already have an account?':'New to Patrol Command?'}</span></div><button className="ghost auth-switch" type="button" onClick={()=>switchMode(mode==='signup'?'login':'signup')} disabled={busy}>{mode==='signup'?'Back to sign in':'Create an account'}</button>{message&&<p className="form-message">{message}</p>}</form></section></main>
+  return <main className="login-shell">
+    <section className="auth-stage">
+      <div className="auth-visual" aria-hidden="true">
+        <div className="auth-grid"/>
+        <div className="auth-orbit orbit-one"/>
+        <div className="auth-orbit orbit-two"/>
+        <div className="auth-beacon"><Shield size={34}/></div>
+        <div className="auth-visual-copy">
+          <span className="system-kicker"><i/> NEVADA FIELD NETWORK</span>
+          <h2>Built for the shift.<br/>Ready in the field.</h2>
+          <p>One secure command surface for post orders, training, equipment and technical support.</p>
+          <div className="auth-feature-row"><span>SECURE ACCESS</span><span>LIVE OPERATIONS</span><span>MOBILE READY</span></div>
+        </div>
+      </div>
+      <section className="login-card">
+        <Brand/>
+        <div className="login-copy">
+          <p className="eyebrow">{mode==='signup'?'NEW OPERATOR':'SECURE FIELD ACCESS'}</p>
+          <h1>{mode==='signup'?'Create account':'Welcome back.'}</h1>
+          <p className="muted">{mode==='signup'?'Create your Patrol Command login. New accounts begin with standard officer access.':'Sign in to enter Patrol Command.'}</p>
+        </div>
+        <form onSubmit={submit}>
+          {mode==='signup'&&<label>Full name<input type="text" value={fullName} onChange={e=>setFullName(e.target.value)} required autoComplete="name" placeholder="First and last name"/></label>}
+          <label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email" placeholder="name@company.com"/></label>
+          <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="••••••••"/></label>
+          {mode==='signup'&&<label>Confirm password<input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required autoComplete="new-password" placeholder="••••••••"/></label>}
+          <button className="primary auth-primary" disabled={busy}>{busy?(mode==='signup'?'Creating account…':'Signing in…'):(mode==='signup'?'Create account':'Enter Patrol Command')}</button>
+          {mode==='login'&&<button className="ghost" type="button" onClick={resetPassword} disabled={busy}>Forgot password</button>}
+          <div className="auth-divider"><span>{mode==='signup'?'Already have an account?':'New to Patrol Command?'}</span></div>
+          <button className="ghost auth-switch" type="button" onClick={()=>switchMode(mode==='signup'?'login':'signup')} disabled={busy}>{mode==='signup'?'Back to sign in':'Create an account'}</button>
+          {message&&<p className="form-message">{message}</p>}
+        </form>
+      </section>
+    </section>
+  </main>
 }
 
 function Brand({compact=false}){ return <div className={'brand-lockup '+(compact?'compact':'')}><div className="brand-mark"><Shield size={compact?24:30}/></div><div><strong>PATROL COMMAND</strong><span>FIELD OPERATIONS</span></div></div> }
@@ -84,7 +118,7 @@ function Shell({user}) {
   useEffect(()=>{ supabase.from('profiles').select('*').eq('id',user.id).single().then(({data})=>setProfile(data)) },[user.id])
   const title = NAV.find(([id])=>id===page)?.[2] || 'Patrol Command'
   return <main className="app-shell">
-    <header className="topbar"><button className="brand-button" onClick={()=>setPage('home')}><Brand compact/></button><div className="top-actions"><div className="user-pill"><CircleUserRound size={17}/><span>{profile?.rank_title||profile?.role||'User'}</span></div><button className="icon-button" onClick={()=>supabase.auth.signOut()} aria-label="Sign out"><LogOut size={19}/></button></div></header>
+    <header className="topbar"><button className="brand-button" onClick={()=>setPage('home')}><Brand compact/></button><div className="top-actions"><div className="network-pill"><i/> ONLINE</div><div className="user-pill"><CircleUserRound size={17}/><span>{profile?.rank_title||profile?.role||'User'}</span></div><button className="icon-button" onClick={()=>supabase.auth.signOut()} aria-label="Sign out"><LogOut size={19}/></button></div></header>
     <section className="page-heading">{page!=='home'&&<button className="back" onClick={()=>setPage('home')}><ChevronLeft size={18}/> Home</button>}<p className="eyebrow">NEVADA OPERATIONS</p><h1>{title}</h1></section>
     <section className="content">{page==='home'&&<Dashboard profile={profile} go={setPage}/>} {page==='accounts'&&<Accounts/>} {page==='training'&&<Training/>} {page==='support'&&<TechSupport user={user}/>} {page==='devices'&&<Devices/>} {page==='shops'&&<Shops/>} {page==='troubleshooting'&&<Troubleshooting/>}</section>
     <nav className="bottom-nav" aria-label="Primary">{NAV.slice(0,5).map(([id,Icon,label])=><button key={id} className={page===id?'active':''} onClick={()=>setPage(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
@@ -95,9 +129,10 @@ function Dashboard({profile,go}) {
   const [announcements,setAnnouncements]=useState([]); const [tickets,setTickets]=useState([])
   useEffect(()=>{ Promise.all([supabase.from('announcements').select('id,title,body,priority').order('created_at',{ascending:false}).limit(3),supabase.from('tech_tickets').select('id,ticket_number,title,status,priority,created_at').order('created_at',{ascending:false}).limit(5)]).then(([a,t])=>{setAnnouncements(a.data||[]);setTickets(t.data||[])}) },[])
   const tiles=[['accounts',BookOpen,'Accounts & Post Orders','Current instructions, contacts and access notes'],['training',GraduationCap,'Training','Guides, policy references and training material'],['support',Headphones,'Tech Support','Submit and track technical support tickets'],['devices',MonitorSmartphone,'Devices','MDTs, tablets, hotspots and equipment'],['shops',Radio,'Shops & Radios','Vehicle and communications reference'],['troubleshooting',Wrench,'Troubleshooting','Fast fixes for common field problems']]
-  return <><section className="welcome"><div><p className="eyebrow">ON DUTY RESOURCE CENTER</p><h2>Welcome{profile?.full_name?', '+profile.full_name.split(' ')[0]:''}.</h2><p className="muted">One source of truth for field operations, training and technical support.</p></div><div className="command-badge"><Shield size={32}/><span>COMMAND</span></div></section>
+  return <><section className="welcome command-hero"><div className="hero-copy"><div className="hero-status"><span className="system-kicker"><i/> SHIFT CONSOLE ACTIVE</span><span className="hero-code">NV // FIELD OPS</span></div><p className="eyebrow">MISSION CONTROL</p><h2>Welcome{profile?.full_name?', '+profile.full_name.split(' ')[0]:''}.</h2><p className="muted">Everything you need for the shift, without hunting through texts, binders or old messages.</p><div className="hero-actions"><button className="primary inline" onClick={()=>go('support')}>Open Tech Support</button><button className="ghost inline-action" onClick={()=>go('accounts')}>View Post Orders</button></div></div><div className="command-emblem"><div className="emblem-ring"><Shield size={42}/></div><span>PATROL</span><strong>COMMAND</strong><small>NEVADA OPERATIONS</small></div></section>
     {announcements.length>0&&<section className="panel"><div className="section-title"><span><Bell size={18}/> Announcements</span></div>{announcements.map(a=><article className="notice" key={a.id}><div><strong>{a.title}</strong><p>{a.body}</p></div><span className={'badge '+a.priority}>{a.priority}</span></article>)}</section>}
-    <section className="tile-grid">{tiles.map(([id,Icon,title,subtitle])=><button className="tile" key={id} onClick={()=>go(id)}><div className="tile-icon"><Icon size={24}/></div><div><strong>{title}</strong><span>{subtitle}</span></div></button>)}</section>
+    <section className="module-heading"><div><p className="eyebrow">FIELD MODULES</p><h3>Choose your workspace</h3></div><span>{tiles.length} MODULES</span></section>
+    <section className="tile-grid">{tiles.map(([id,Icon,title,subtitle],index)=><button className="tile" key={id} onClick={()=>go(id)}><div className="tile-top"><span className="tile-index">{String(index+1).padStart(2,'0')}</span><div className="tile-icon"><Icon size={24}/></div></div><div className="tile-copy"><strong>{title}</strong><span>{subtitle}</span></div><span className="tile-arrow">↗</span></button>)}</section>
     <section className="panel"><div className="section-title"><span><Headphones size={18}/> Recent tech tickets</span><button className="text-button" onClick={()=>go('support')}>View all</button></div>{tickets.length===0?<p className="empty">No tickets yet.</p>:tickets.map(t=><TicketRow ticket={t} key={t.id}/>)}</section></>
 }
 
