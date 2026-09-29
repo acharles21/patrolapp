@@ -12,10 +12,69 @@ const NAV = [
 ]
 
 function Login() {
-  const [email,setEmail] = useState(''); const [password,setPassword] = useState(''); const [busy,setBusy] = useState(false); const [message,setMessage] = useState('')
-  async function submit(e){ e.preventDefault(); setBusy(true); setMessage(''); const {error}=await supabase.auth.signInWithPassword({email,password}); if(error)setMessage(error.message); setBusy(false) }
-  async function resetPassword(){ if(!email)return setMessage('Enter your email address first.'); setBusy(true); const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/patrolapp/'}); setMessage(error?error.message:'Password reset email sent.'); setBusy(false) }
-  return <main className="login-shell"><section className="login-card"><Brand/><div className="login-copy"><p className="eyebrow">SECURE FIELD ACCESS</p><h1>Patrol Command</h1><p className="muted">Operations, training, account information and technical support in one place.</p></div><form onSubmit={submit}><label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button className="primary" disabled={busy}>{busy?'Signing in…':'Sign in'}</button><button className="ghost" type="button" onClick={resetPassword} disabled={busy}>Forgot password</button>{message&&<p className="form-message">{message}</p>}</form></section></main>
+  const [mode,setMode] = useState('login')
+  const [fullName,setFullName] = useState('')
+  const [email,setEmail] = useState('')
+  const [password,setPassword] = useState('')
+  const [confirmPassword,setConfirmPassword] = useState('')
+  const [busy,setBusy] = useState(false)
+  const [message,setMessage] = useState('')
+
+  async function submit(e){
+    e.preventDefault()
+    setBusy(true)
+    setMessage('')
+
+    if(mode === 'signup'){
+      if(password.length < 8){
+        setMessage('Password must be at least 8 characters.')
+        setBusy(false)
+        return
+      }
+      if(password !== confirmPassword){
+        setMessage('Passwords do not match.')
+        setBusy(false)
+        return
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName.trim() },
+          emailRedirectTo: window.location.origin + '/patrolapp/'
+        }
+      })
+
+      if(error) setMessage(error.message)
+      else if(data.session) setMessage('Account created. Signing you in…')
+      else setMessage('Account created. Check your email to confirm your account, then sign in.')
+
+      setBusy(false)
+      return
+    }
+
+    const {error}=await supabase.auth.signInWithPassword({email,password})
+    if(error)setMessage(error.message)
+    setBusy(false)
+  }
+
+  async function resetPassword(){
+    if(!email)return setMessage('Enter your email address first.')
+    setBusy(true)
+    const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/patrolapp/'})
+    setMessage(error?error.message:'Password reset email sent.')
+    setBusy(false)
+  }
+
+  function switchMode(next){
+    setMode(next)
+    setMessage('')
+    setPassword('')
+    setConfirmPassword('')
+  }
+
+  return <main className="login-shell"><section className="login-card"><Brand/><div className="login-copy"><p className="eyebrow">SECURE FIELD ACCESS</p><h1>{mode==='signup'?'Create account':'Patrol Command'}</h1><p className="muted">{mode==='signup'?'Create your Patrol Command login. New accounts start with standard officer access.':'Operations, training, account information and technical support in one place.'}</p></div><form onSubmit={submit}>{mode==='signup'&&<label>Full name<input type="text" value={fullName} onChange={e=>setFullName(e.target.value)} required autoComplete="name"/></label>}<label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email"/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete={mode==='signup'?'new-password':'current-password'}/></label>{mode==='signup'&&<label>Confirm password<input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required autoComplete="new-password"/></label>}<button className="primary" disabled={busy}>{busy?(mode==='signup'?'Creating account…':'Signing in…'):(mode==='signup'?'Create account':'Sign in')}</button>{mode==='login'&&<button className="ghost" type="button" onClick={resetPassword} disabled={busy}>Forgot password</button>}<div className="auth-divider"><span>{mode==='signup'?'Already have an account?':'New to Patrol Command?'}</span></div><button className="ghost auth-switch" type="button" onClick={()=>switchMode(mode==='signup'?'login':'signup')} disabled={busy}>{mode==='signup'?'Back to sign in':'Create an account'}</button>{message&&<p className="form-message">{message}</p>}</form></section></main>
 }
 
 function Brand({compact=false}){ return <div className={'brand-lockup '+(compact?'compact':'')}><div className="brand-mark"><Shield size={compact?24:30}/></div><div><strong>PATROL COMMAND</strong><span>FIELD OPERATIONS</span></div></div> }
