@@ -1,20 +1,57 @@
-const CACHE = 'patrol-command-v1'
+const CACHE = 'patrol-command-v2'
 const HOME = '/patrolapp/'
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.add(HOME)))
+  event.waitUntil(
+    caches.open(CACHE).then(cache => cache.add(new Request(HOME, { cache: 'reload' })))
+  )
   self.skipWaiting()
 })
 
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim())
+  event.waitUntil(
+    Promise.all([
+      caches.keys().then(keys => Promise.all(
+        keys.filter(key => key !== CACHE).map(key => caches.delete(key))
+      )),
+      self.clients.claim()
+    ])
+  )
+})
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return
-  event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match(event.request).then(response => response || caches.match(HOME))
+  const request = event.request
+  if (request.method !== 'GET') return
+
+  const url = new URL(request.url)
+  if (url.origin !== self.location.origin) return
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(new Request(request, { cache: 'no-store' }))
+        .then(response => {
+          const copy = response.clone()
+          event.waitUntil(caches.open(CACHE).then(cache => cache.put(HOME, copy)))
+          return response
+        })
+        .catch(() => caches.match(HOME))
     )
+    return
+  }
+
+  event.respondWith(
+    fetch(request)
+      .then(response => {
+        if (response.ok) {
+          const copy = response.clone()
+          event.waitUntil(caches.open(CACHE).then(cache => cache.put(request, copy)))
+        }
+        return response
+      })
+      .catch(() => caches.match(request))
   )
 })
