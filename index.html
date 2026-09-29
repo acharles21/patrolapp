@@ -6,11 +6,61 @@
     <meta name="theme-color" content="#0b0b0c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Patrol Command" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>Patrol Command</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        let refreshing = false
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return
+          refreshing = true
+          window.location.reload()
+        })
+
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('./sw.js', {
+              scope: './',
+              updateViaCache: 'none'
+            })
+
+            const watchInstallingWorker = worker => {
+              if (!worker) return
+              worker.addEventListener('statechange', () => {
+                if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                  worker.postMessage({ type: 'SKIP_WAITING' })
+                }
+              })
+            }
+
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+            }
+
+            watchInstallingWorker(registration.installing)
+            registration.addEventListener('updatefound', () => {
+              watchInstallingWorker(registration.installing)
+            })
+
+            const checkForUpdate = () => registration.update().catch(() => {})
+
+            checkForUpdate()
+            window.addEventListener('pageshow', checkForUpdate)
+            window.addEventListener('focus', checkForUpdate)
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') checkForUpdate()
+            })
+          } catch (error) {
+            console.error('Service worker registration failed:', error)
+          }
+        })
+      }
+    </script>
   </body>
 </html>
