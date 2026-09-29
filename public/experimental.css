@@ -1,0 +1,220 @@
+/* Patrol Command — Experimental Field Workspace
+   Layered, asymmetric, touch-first visual system. This file intentionally
+   overrides the base theme without changing working application logic. */
+
+:root{
+  --pc-gold:#d6ad53;
+  --pc-gold-soft:#f2d896;
+  --pc-ink:#070809;
+  --pc-panel:rgba(19,20,22,.82);
+  --pc-line:rgba(255,255,255,.09);
+  --pc-glass:rgba(255,255,255,.055);
+  --pc-shadow:0 24px 70px rgba(0,0,0,.42);
+  --pc-spring:cubic-bezier(.2,.8,.2,1);
+}
+
+html{background:#070809;scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 8% 14%,rgba(214,173,83,.09),transparent 27rem),
+    radial-gradient(circle at 92% 68%,rgba(73,91,112,.10),transparent 30rem),
+    linear-gradient(160deg,#090a0b 0%,#050607 55%,#0b0c0e 100%) !important;
+  min-height:100dvh;
+}
+
+/* Give the whole app a layered work-surface instead of a page of boxes. */
+.app-shell{position:relative;isolation:isolate;overflow-x:clip;padding-bottom:116px}
+.app-shell:before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.24;
+  background-image:linear-gradient(rgba(255,255,255,.026) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.026) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 72%);
+}
+
+/* Topbar becomes a thin floating hardware rail. */
+.topbar{
+  width:min(1180px,calc(100% - 28px)) !important;margin:14px auto 0 !important;
+  border:1px solid var(--pc-line) !important;border-radius:999px !important;
+  background:rgba(10,11,12,.70) !important;backdrop-filter:blur(24px) saturate(140%);
+  box-shadow:0 12px 40px rgba(0,0,0,.26);padding:8px 10px 8px 14px !important;
+  position:sticky !important;top:max(10px,env(safe-area-inset-top)) !important;z-index:50;
+}
+.brand-button,.icon-button{border-radius:999px !important}
+.network-pill,.user-pill{border-radius:999px !important;background:rgba(255,255,255,.045) !important;border-color:rgba(255,255,255,.075) !important}
+
+.page-heading{max-width:1180px;margin-inline:auto;padding-top:34px !important}
+.page-heading h1{letter-spacing:-.045em;font-size:clamp(2.1rem,6vw,4.8rem);line-height:.92}
+
+/* Home: giant command surface + overlapping control islands. */
+.shift-console{position:relative;max-width:1180px;margin:0 auto;padding:4px 0 50px}
+.shift-header{
+  position:relative;min-height:310px;overflow:hidden;border:0 !important;border-radius:42px 42px 96px 42px !important;
+  padding:clamp(28px,5vw,64px) !important;background:
+    radial-gradient(circle at 77% 42%,rgba(214,173,83,.18),transparent 16rem),
+    linear-gradient(125deg,rgba(24,25,27,.95),rgba(9,10,11,.88) 58%,rgba(18,16,12,.94)) !important;
+  box-shadow:var(--pc-shadow);transform:rotate(-.35deg);transform-origin:center;
+}
+.shift-header:before{content:"SHIFT / ACTIVE";position:absolute;right:4%;top:22px;font-size:clamp(2.7rem,9vw,7.6rem);font-weight:900;letter-spacing:-.07em;color:rgba(255,255,255,.025);white-space:nowrap;pointer-events:none}
+.shift-header:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:9%;bottom:-85px;border:1px solid rgba(214,173,83,.2);box-shadow:0 0 0 28px rgba(214,173,83,.028),0 0 0 56px rgba(214,173,83,.018)}
+.shift-identity{max-width:640px;position:relative;z-index:2;transform:rotate(.35deg)}
+.shift-identity h2{font-size:clamp(2.7rem,7vw,6rem) !important;line-height:.89 !important;letter-spacing:-.065em !important;margin:.36em 0 .22em !important}
+.shift-identity>p:last-child{max-width:38rem;font-size:1.03rem;color:rgba(255,255,255,.64)}
+.shift-signal{position:absolute !important;right:7%;top:50%;transform:translateY(-50%) rotate(.35deg) scale(1.08)}
+.signal-core{box-shadow:0 0 70px rgba(214,173,83,.22)}
+
+/* Quick actions stop being equal cards; they float as a tool ribbon overlapping the hero. */
+.quick-strip{
+  position:relative;z-index:8;margin:-42px 4% 42px auto !important;width:min(760px,92%);
+  display:grid !important;grid-template-columns:1.2fr .9fr 1.05fr .8fr !important;gap:10px !important;
+  padding:11px !important;border:1px solid rgba(255,255,255,.10);border-radius:30px 16px 30px 30px !important;
+  background:rgba(12,13,14,.76) !important;backdrop-filter:blur(24px) saturate(150%);box-shadow:0 18px 60px rgba(0,0,0,.42);
+}
+.quick-command{
+  min-height:88px !important;border:0 !important;border-radius:22px !important;background:transparent !important;
+  transition:transform .28s var(--pc-spring),background .28s ease !important;text-align:left;
+}
+.quick-command:nth-child(1){background:rgba(214,173,83,.11) !important;transform:translateY(-5px)}
+.quick-command:nth-child(3){transform:translateY(5px)}
+.quick-command:hover,.quick-command:focus-visible{transform:translateY(-6px) scale(1.025) !important;background:rgba(255,255,255,.075) !important}
+.quick-command-icon{border-radius:50% !important;background:rgba(214,173,83,.12) !important}
+
+.ops-layout{display:grid !important;grid-template-columns:minmax(0,1.55fr) minmax(260px,.72fr) !important;gap:32px !important;align-items:start}
+.briefing-column{position:relative}
+.briefing-column:before{content:"";position:absolute;left:22px;top:70px;bottom:35px;width:1px;background:linear-gradient(var(--pc-gold),rgba(214,173,83,.03));opacity:.33}
+.brief-card{
+  position:relative;border:0 !important;border-radius:12px 34px 34px 12px !important;margin:0 0 14px 34px !important;
+  background:linear-gradient(110deg,rgba(255,255,255,.07),rgba(255,255,255,.025)) !important;
+  box-shadow:none !important;backdrop-filter:blur(10px);transition:transform .25s var(--pc-spring),background .25s ease;
+}
+.brief-card:nth-of-type(even){margin-left:68px !important;margin-right:-12px !important}
+.brief-card:hover{transform:translateX(6px);background:linear-gradient(110deg,rgba(255,255,255,.095),rgba(255,255,255,.035)) !important}
+.brief-marker{border-radius:50% !important;margin-left:-42px;background:#0c0d0f !important;border:1px solid rgba(214,173,83,.28) !important;box-shadow:0 0 0 7px #08090a}
+
+.activity-line{margin-left:18px;padding-left:24px;border-left:1px dashed rgba(214,173,83,.22)}
+.activity-item{border:0 !important;border-radius:0 24px 24px 0 !important;background:transparent !important;margin:4px 0 !important;transition:background .2s ease,transform .2s var(--pc-spring)}
+.activity-item:hover{background:rgba(255,255,255,.045) !important;transform:translateX(4px)}
+
+/* Side rail becomes two deliberately different objects. */
+.shift-side{display:flex !important;flex-direction:column;gap:24px;position:sticky;top:100px}
+.readiness-card{border:0 !important;border-radius:44px 18px 44px 18px !important;background:linear-gradient(145deg,rgba(214,173,83,.13),rgba(255,255,255,.035)) !important;box-shadow:var(--pc-shadow);transform:rotate(1deg)}
+.readiness-card>*{transform:rotate(-1deg)}
+.reference-stack{padding:8px 0 0 22px !important;border-left:1px solid rgba(255,255,255,.12)}
+.reference-stack button{border:0 !important;border-radius:999px !important;background:rgba(255,255,255,.035) !important;margin:8px 0 !important;transition:transform .25s var(--pc-spring),background .2s}
+.reference-stack button:nth-child(3){margin-left:24px !important}
+.reference-stack button:hover{transform:translateX(8px);background:rgba(214,173,83,.09) !important}
+
+/* Floating curved dock. */
+.bottom-nav{
+  position:fixed !important;left:50% !important;right:auto !important;bottom:max(14px,env(safe-area-inset-bottom)) !important;
+  transform:translateX(-50%);z-index:80;width:min(620px,calc(100% - 28px)) !important;height:76px !important;
+  padding:8px 10px !important;border:1px solid rgba(255,255,255,.12) !important;border-radius:28px 28px 42px 42px !important;
+  background:rgba(9,10,11,.76) !important;backdrop-filter:blur(28px) saturate(160%);box-shadow:0 24px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+.bottom-nav:before{content:"";position:absolute;left:50%;top:-5px;transform:translateX(-50%);width:58px;height:6px;border-radius:999px;background:rgba(214,173,83,.48);box-shadow:0 0 22px rgba(214,173,83,.25)}
+.bottom-nav button{border-radius:20px !important;transition:transform .24s var(--pc-spring),background .2s,color .2s !important}
+.bottom-nav button.active{background:rgba(214,173,83,.13) !important;transform:translateY(-7px) scale(1.05);box-shadow:0 12px 26px rgba(0,0,0,.3)}
+.bottom-nav button.active svg{filter:drop-shadow(0 0 8px rgba(214,173,83,.34))}
+
+/* Tech Support: turn issue choices into floating physical objects. */
+.support-workspace{position:relative;min-height:58vh}
+.support-launch{border:0 !important;border-radius:56px 18px 56px 18px !important;background:
+  radial-gradient(circle at 82% 30%,rgba(214,173,83,.15),transparent 14rem),rgba(255,255,255,.025) !important;
+  min-height:280px;box-shadow:var(--pc-shadow);overflow:hidden;position:relative}
+.support-launch:after{content:"?";position:absolute;right:5%;bottom:-40px;font-size:15rem;font-weight:900;color:rgba(255,255,255,.025);line-height:1}
+.support-launch-button{border-radius:999px !important;position:relative;z-index:2;box-shadow:0 14px 34px rgba(0,0,0,.32)}
+
+.triage-console{border:0 !important;background:transparent !important;box-shadow:none !important}
+.triage-topbar{position:sticky;top:92px;z-index:20;border:1px solid var(--pc-line) !important;border-radius:999px !important;background:rgba(10,11,12,.76) !important;backdrop-filter:blur(22px);padding:9px 14px !important;margin-bottom:34px !important}
+.triage-progress{gap:5px !important}
+.triage-progress>div{border-radius:999px !important;padding:6px 10px !important;background:transparent !important}
+.triage-progress>div.current{background:rgba(214,173,83,.12) !important}
+
+.wizard-stage{animation:pc-stage-in .42s var(--pc-spring) both}
+@keyframes pc-stage-in{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+.wizard-copy{max-width:720px;margin:0 auto 34px;text-align:center}
+.wizard-copy h2{font-size:clamp(2.5rem,8vw,5.5rem) !important;line-height:.9 !important;letter-spacing:-.06em !important}
+
+.issue-console-grid{
+  display:grid !important;grid-template-columns:repeat(12,1fr) !important;grid-auto-rows:28px !important;
+  gap:0 !important;min-height:520px;max-width:1040px;margin:10px auto 0;position:relative;padding:12px !important;
+}
+.issue-console-choice{
+  position:relative;border:1px solid rgba(255,255,255,.095) !important;background:rgba(18,19,21,.72) !important;
+  backdrop-filter:blur(18px);border-radius:999px !important;min-height:74px !important;padding:12px 18px !important;
+  box-shadow:0 16px 36px rgba(0,0,0,.28);transition:transform .28s var(--pc-spring),border-color .2s,background .2s !important;
+}
+.issue-console-choice:hover,.issue-console-choice:focus-visible{transform:translateY(-7px) scale(1.035) rotate(0deg) !important;border-color:rgba(214,173,83,.5) !important;background:rgba(214,173,83,.10) !important;z-index:8}
+.issue-console-icon{border-radius:50% !important;flex:0 0 48px !important;width:48px !important;height:48px !important;background:rgba(214,173,83,.10) !important}
+.issue-console-choice:nth-child(1){grid-column:1/6;grid-row:1/4;transform:rotate(-2.3deg)}
+.issue-console-choice:nth-child(2){grid-column:7/12;grid-row:2/5;transform:rotate(1.7deg)}
+.issue-console-choice:nth-child(3){grid-column:3/8;grid-row:5/8;transform:rotate(.8deg)}
+.issue-console-choice:nth-child(4){grid-column:8/13;grid-row:6/9;transform:rotate(-1.5deg)}
+.issue-console-choice:nth-child(5){grid-column:1/5;grid-row:9/12;transform:rotate(2deg)}
+.issue-console-choice:nth-child(6){grid-column:6/11;grid-row:10/13;transform:rotate(-1deg)}
+.issue-console-choice:nth-child(7){grid-column:2/7;grid-row:13/16;transform:rotate(-1.6deg)}
+.issue-console-choice:nth-child(8){grid-column:8/13;grid-row:14/17;transform:rotate(1.4deg)}
+.issue-console-choice:nth-child(9){grid-column:4/10;grid-row:17/20;transform:rotate(.5deg)}
+
+.impact-console-list{max-width:820px;margin:0 auto;display:flex !important;flex-direction:column;gap:14px !important}
+.impact-console-list button{border:0 !important;border-radius:18px 999px 999px 18px !important;background:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,.025)) !important;min-height:92px !important;transition:transform .25s var(--pc-spring),background .2s !important}
+.impact-console-list button:nth-child(even){margin-left:58px !important;border-radius:999px 18px 18px 999px !important}
+.impact-console-list button:hover{transform:translateX(10px) !important;background:linear-gradient(90deg,rgba(214,173,83,.12),rgba(255,255,255,.03)) !important}
+.impact-pulse{border-radius:50% !important;box-shadow:0 0 0 7px rgba(214,173,83,.05)}
+
+.triage-summary{border:0 !important;border-radius:28px 12px 28px 12px !important;background:rgba(214,173,83,.065) !important;transform:rotate(-.4deg)}
+.triage-summary>*{transform:rotate(.4deg)}
+.submit-command{border-radius:999px !important;min-height:62px !important;box-shadow:0 16px 40px rgba(214,173,83,.12)}
+.ticket-receipt{border:0 !important;border-radius:50% 50% 34px 34px / 14% 14% 34px 34px !important;background:radial-gradient(circle at 50% 10%,rgba(214,173,83,.15),transparent 18rem),rgba(255,255,255,.035) !important;box-shadow:var(--pc-shadow)}
+.receipt-check{border-radius:50% !important;box-shadow:0 0 0 14px rgba(214,173,83,.045),0 0 60px rgba(214,173,83,.14)}
+
+/* Queue reads like a dispatch strip, not repeated cards. */
+.ticket-queue{border:0 !important;background:transparent !important}
+.queue-ticket{border:0 !important;border-bottom:1px solid rgba(255,255,255,.07) !important;border-radius:0 !important;background:transparent !important;transition:background .2s,transform .2s var(--pc-spring) !important}
+.queue-ticket:hover{background:rgba(255,255,255,.035) !important;transform:translateX(5px)}
+.queue-priority{border-radius:50% !important;min-width:48px !important;height:48px !important;display:grid !important;place-items:center}
+.ticket-filters{border-radius:999px !important;background:rgba(255,255,255,.035) !important;border:1px solid var(--pc-line) !important}
+
+/* Global surfaces become softer and less box-led. */
+.panel{border-radius:28px 12px 28px 12px !important;background:rgba(255,255,255,.035) !important;border-color:rgba(255,255,255,.075) !important}
+.list-card,.resource-card,.device-card{border-radius:18px 34px 18px 34px !important}
+input,textarea,select{border-radius:18px !important}
+button,.panel,.brief-card,.issue-console-choice{-webkit-tap-highlight-color:transparent}
+
+@media (max-width:820px){
+  .app-shell{padding-bottom:108px}
+  .topbar{width:calc(100% - 18px) !important;margin-top:8px !important}
+  .topbar .user-pill span,.network-pill{font-size:.66rem !important}
+  .page-heading{padding-inline:18px !important;padding-top:24px !important}
+  .content{padding-inline:14px !important}
+  .shift-console{padding-inline:0}
+  .shift-header{min-height:300px;border-radius:32px 32px 64px 32px !important;padding:30px 24px 70px !important;transform:none}
+  .shift-identity,.shift-signal{transform:none}
+  .shift-signal{right:-28px !important;top:auto !important;bottom:-8px !important;opacity:.55;transform:scale(.76) !important}
+  .shift-identity h2{font-size:clamp(2.5rem,14vw,4.6rem) !important}
+  .quick-strip{margin:-46px 12px 34px auto !important;width:calc(100% - 24px) !important;grid-template-columns:1fr 1fr !important;border-radius:26px 14px 26px 26px !important}
+  .quick-command{min-height:78px !important}
+  .quick-command:nth-child(3){transform:none}
+  .ops-layout{grid-template-columns:1fr !important;gap:24px !important}
+  .shift-side{position:static;display:grid !important;grid-template-columns:1fr !important}
+  .brief-card,.brief-card:nth-of-type(even){margin-left:26px !important;margin-right:0 !important}
+  .briefing-column:before{left:10px}
+  .reference-stack button:nth-child(3){margin-left:12px !important}
+  .bottom-nav{height:70px !important;width:calc(100% - 18px) !important;border-radius:25px 25px 34px 34px !important}
+  .bottom-nav button span{font-size:.65rem !important}
+  .bottom-nav button.active{transform:translateY(-5px) scale(1.04)}
+  .triage-topbar{top:86px !important;border-radius:24px !important;align-items:center}
+  .triage-progress small{display:none !important}
+  .wizard-copy{text-align:left;margin-bottom:24px}
+  .wizard-copy h2{font-size:clamp(2.55rem,13vw,4.3rem) !important}
+  .issue-console-grid{display:flex !important;flex-wrap:wrap;align-content:flex-start;gap:11px !important;min-height:0 !important;padding:0 !important}
+  .issue-console-choice{width:auto !important;flex:1 1 calc(50% - 8px);min-width:150px;transform:none !important;border-radius:28px !important;min-height:112px !important;flex-direction:column !important;align-items:flex-start !important}
+  .issue-console-choice:nth-child(3n){transform:translateY(8px) !important}
+  .issue-console-choice:nth-child(4n){border-radius:999px 28px 28px 999px !important}
+  .issue-console-choice>svg{position:absolute;right:14px;top:14px}
+  .impact-console-list button,.impact-console-list button:nth-child(even){margin-left:0 !important;border-radius:20px 34px 34px 20px !important;min-height:96px !important}
+  .impact-console-list button:nth-child(even){margin-left:20px !important;margin-right:0 !important;border-radius:34px 20px 20px 34px !important}
+  .ticket-filters{border-radius:24px !important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
+}
