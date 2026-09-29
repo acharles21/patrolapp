@@ -24,3 +24,84 @@
 @keyframes wizardIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(max-width:780px){.support-launch{grid-template-columns:1fr}.support-launch-button{width:100%;min-width:0}.issue-console-grid{grid-template-columns:repeat(2,1fr)}.triage-summary{grid-template-columns:1fr 1fr}.response-dot{grid-column:1/-1}.ticket-filters{grid-template-columns:1fr 1fr}.refresh-queue{grid-column:1/-1;justify-content:center}.triage-progress small{display:none}}
 @media(max-width:520px){.support-launch{padding:20px}.support-launch h2{font-size:2.8rem}.triage-topbar{grid-template-columns:1fr;gap:7px}.triage-progress{justify-self:stretch}.triage-close{width:max-content}.wizard-stage{padding:20px 16px 24px}.issue-console-grid{grid-template-columns:1fr}.issue-console-choice{min-height:92px}.impact-console-list button{padding:14px}.queue-ticket{grid-template-columns:auto 1fr}.queue-ticket-state{grid-column:2;justify-self:start}.triage-summary{grid-template-columns:1fr}.response-dot{grid-column:auto}.ticket-filters{grid-template-columns:1fr}.refresh-queue{grid-column:auto}.receipt-actions{display:grid;width:100%}.receipt-actions>*{width:100%;justify-content:center}}
+
+/* --- Mobile support card layout fix --- */
+.issue-console-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.issue-console-choice{width:100%;min-width:0;overflow:hidden}
+.issue-console-choice>div:nth-child(2){min-width:0}
+.issue-console-choice strong{
+  overflow-wrap:normal;
+  word-break:normal;
+  hyphens:none;
+}
+.issue-console-choice span{
+  overflow-wrap:normal;
+  word-break:normal;
+  hyphens:none;
+}
+@media(max-width:780px){
+  .issue-console-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  .issue-console-choice{
+    min-height:150px;
+    padding:14px;
+    grid-template-columns:1fr auto;
+    grid-template-rows:auto 1fr;
+    align-content:start;
+    gap:10px 8px;
+  }
+  .issue-console-icon{
+    grid-column:1;
+    grid-row:1;
+    width:44px;
+    height:44px;
+  }
+  .issue-console-choice>div:nth-child(2){
+    grid-column:1/-1;
+    grid-row:2;
+    align-self:end;
+  }
+  .issue-console-choice>svg{
+    grid-column:2;
+    grid-row:1;
+    justify-self:end;
+    margin-top:8px;
+  }
+  .issue-console-choice strong{
+    font-size:.98rem;
+    line-height:1.16;
+  }
+  .issue-console-choice span{
+    font-size:.7rem;
+    line-height:1.35;
+    margin-top:6px;
+  }
+}
+@media(max-width:520px){
+  .wizard-stage{padding-left:14px;padding-right:14px}
+  .issue-console-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  .issue-console-choice{
+    min-height:148px;
+    border-radius:16px;
+    padding:13px;
+  }
+  .issue-console-choice strong{
+    font-size:.94rem;
+  }
+  .issue-console-choice span{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    overflow:hidden;
+  }
+}
+@media(max-width:340px){
+  .issue-console-grid{grid-template-columns:1fr}
+  .issue-console-choice{min-height:96px}
+}
+
