@@ -126,14 +126,82 @@ function Shell({user}) {
 }
 
 function Dashboard({profile,go}) {
-  const [announcements,setAnnouncements]=useState([]); const [tickets,setTickets]=useState([])
-  useEffect(()=>{ Promise.all([supabase.from('announcements').select('id,title,body,priority').order('created_at',{ascending:false}).limit(3),supabase.from('tech_tickets').select('id,ticket_number,title,status,priority,created_at').order('created_at',{ascending:false}).limit(5)]).then(([a,t])=>{setAnnouncements(a.data||[]);setTickets(t.data||[])}) },[])
-  const tiles=[['accounts',BookOpen,'Accounts & Post Orders','Current instructions, contacts and access notes'],['training',GraduationCap,'Training','Guides, policy references and training material'],['support',Headphones,'Tech Support','Submit and track technical support tickets'],['devices',MonitorSmartphone,'Devices','MDTs, tablets, hotspots and equipment'],['shops',Radio,'Shops & Radios','Vehicle and communications reference'],['troubleshooting',Wrench,'Troubleshooting','Fast fixes for common field problems']]
-  return <><section className="welcome command-hero"><div className="hero-copy"><div className="hero-status"><span className="system-kicker"><i/> SHIFT CONSOLE ACTIVE</span><span className="hero-code">NV // FIELD OPS</span></div><p className="eyebrow">MISSION CONTROL</p><h2>Welcome{profile?.full_name?', '+profile.full_name.split(' ')[0]:''}.</h2><p className="muted">Everything you need for the shift, without hunting through texts, binders or old messages.</p><div className="hero-actions"><button className="primary inline" onClick={()=>go('support')}>Open Tech Support</button><button className="ghost inline-action" onClick={()=>go('accounts')}>View Post Orders</button></div></div><div className="command-emblem"><div className="emblem-ring"><Shield size={42}/></div><span>PATROL</span><strong>COMMAND</strong><small>NEVADA OPERATIONS</small></div></section>
-    {announcements.length>0&&<section className="panel"><div className="section-title"><span><Bell size={18}/> Announcements</span></div>{announcements.map(a=><article className="notice" key={a.id}><div><strong>{a.title}</strong><p>{a.body}</p></div><span className={'badge '+a.priority}>{a.priority}</span></article>)}</section>}
-    <section className="module-heading"><div><p className="eyebrow">FIELD MODULES</p><h3>Choose your workspace</h3></div><span>{tiles.length} MODULES</span></section>
-    <section className="tile-grid">{tiles.map(([id,Icon,title,subtitle],index)=><button className="tile" key={id} onClick={()=>go(id)}><div className="tile-top"><span className="tile-index">{String(index+1).padStart(2,'0')}</span><div className="tile-icon"><Icon size={24}/></div></div><div className="tile-copy"><strong>{title}</strong><span>{subtitle}</span></div><span className="tile-arrow">↗</span></button>)}</section>
-    <section className="panel"><div className="section-title"><span><Headphones size={18}/> Recent tech tickets</span><button className="text-button" onClick={()=>go('support')}>View all</button></div>{tickets.length===0?<p className="empty">No tickets yet.</p>:tickets.map(t=><TicketRow ticket={t} key={t.id}/>)}</section></>
+  const [announcements,setAnnouncements]=useState([])
+  const [tickets,setTickets]=useState([])
+
+  useEffect(()=>{
+    Promise.all([
+      supabase.from('announcements').select('id,title,body,priority,created_at').order('created_at',{ascending:false}).limit(3),
+      supabase.from('tech_tickets').select('id,ticket_number,title,status,priority,created_at').order('created_at',{ascending:false}).limit(5)
+    ]).then(([a,t])=>{setAnnouncements(a.data||[]);setTickets(t.data||[])})
+  },[])
+
+  const quickActions=[
+    ['accounts',BookOpen,'Post Orders','Briefing'],
+    ['support',Headphones,'Report Issue','Support'],
+    ['shops',Radio,'Shops & Radios','Equipment'],
+    ['training',GraduationCap,'Training','Reference']
+  ]
+  const openTickets=tickets.filter(t=>!['resolved','closed'].includes(t.status))
+
+  return <div className="shift-console">
+    <section className="shift-header">
+      <div className="shift-identity">
+        <span className="system-kicker"><i/> PATROL COMMAND ONLINE</span>
+        <p className="eyebrow">SHIFT CONSOLE</p>
+        <h2>{profile?.full_name ? profile.full_name.split(' ')[0] : 'Officer'}, you're in.</h2>
+        <p>Start with what matters now. Everything else stays one tap away.</p>
+      </div>
+      <div className="shift-signal" aria-hidden="true">
+        <div className="signal-core"><Shield size={38}/></div>
+        <div className="signal-line one"/><div className="signal-line two"/><div className="signal-line three"/>
+      </div>
+    </section>
+
+    <section className="quick-strip" aria-label="Quick actions">
+      {quickActions.map(([id,Icon,title,kicker])=><button key={id} className="quick-command" onClick={()=>go(id)}>
+        <div className="quick-command-icon"><Icon size={22}/></div>
+        <div><small>{kicker}</small><strong>{title}</strong></div>
+        <span>↗</span>
+      </button>)}
+    </section>
+
+    <section className="ops-layout">
+      <div className="briefing-column">
+        <div className="section-intro"><div><p className="eyebrow">NOW</p><h3>Shift briefing</h3></div><span>{announcements.length ? announcements.length+' ACTIVE' : 'CLEAR'}</span></div>
+
+        {announcements.length===0 ? <article className="brief-card clear-card"><div className="brief-marker"><Shield size={20}/></div><div><strong>No active briefings.</strong><p>Nothing new requires your attention right now.</p></div></article> :
+          announcements.map((a,index)=><article className={'brief-card '+(a.priority||'')} key={a.id}>
+            <div className="brief-marker"><span>{String(index+1).padStart(2,'0')}</span></div>
+            <div className="brief-body"><div className="brief-meta"><span>{a.priority||'notice'}</span><time>{new Date(a.created_at).toLocaleDateString()}</time></div><strong>{a.title}</strong><p>{a.body}</p></div>
+          </article>)}
+
+        <div className="section-intro compact-intro"><div><p className="eyebrow">YOUR SHIFT</p><h3>Recent activity</h3></div><button className="text-button" onClick={()=>go('support')}>View support</button></div>
+        <div className="activity-line">
+          {tickets.length===0 ? <div className="activity-empty"><span/><p>No ticket activity yet.</p></div> :
+            tickets.map(t=><button className="activity-item" key={t.id} onClick={()=>go('support')}>
+              <span className={'activity-dot '+t.status}/>
+              <div><strong>Ticket #{t.ticket_number}</strong><p>{t.title}</p><small>{t.priority.toUpperCase()} · {t.status.replaceAll('_',' ')}</small></div>
+              <time>{new Date(t.created_at).toLocaleDateString()}</time>
+            </button>)}
+        </div>
+      </div>
+
+      <aside className="shift-side">
+        <section className="readiness-card">
+          <div className="readiness-top"><span>SHIFT STATUS</span><strong>READY</strong></div>
+          <div className="readiness-ring"><div><strong>{openTickets.length}</strong><span>open tickets</span></div></div>
+          <div className="readiness-list"><div><span>Network</span><strong>Online</strong></div><div><span>Command</span><strong>Available</strong></div><div><span>Resources</span><strong>Synced</strong></div></div>
+        </section>
+
+        <section className="reference-stack">
+          <p className="eyebrow">REFERENCE</p>
+          <button onClick={()=>go('devices')}><MonitorSmartphone size={18}/><div><strong>Devices</strong><span>MDTs, tablets, hotspots</span></div><b>→</b></button>
+          <button onClick={()=>go('troubleshooting')}><Wrench size={18}/><div><strong>Fast Fixes</strong><span>Common field problems</span></div><b>→</b></button>
+        </section>
+      </aside>
+    </section>
+  </div>
 }
 
 function Accounts(){
