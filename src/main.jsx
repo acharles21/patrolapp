@@ -4,6 +4,7 @@ import { Bell, BookOpen, ChevronLeft, CircleUserRound, GraduationCap, Headphones
 import { supabase } from './lib/supabase'
 import TechSupport from './TechSupport'
 import './styles.css'
+import './tech-support.css'
 
 const NAV = [
   ['home', Home, 'Home'], ['accounts', BookOpen, 'Accounts'], ['training', GraduationCap, 'Training'],
